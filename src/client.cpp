@@ -61,6 +61,20 @@ void real_create(zmq::socket_t& parent_socket, zmq::socket_t& socket, int& creat
     }
 }
 
+void real_exec(zmq::socket_t& parent_socket, zmq::socket_t& socket,  int& id, int& pid, string& request_string) {
+    if (pid == 0) {
+        string receive_message = "Error:" + to_string(id);
+        receive_message += ": Not found";
+        send_message(parent_socket, receive_message);
+    } 
+    else {
+        send_message(socket, request_string);
+        string str = receive_message(socket);
+        if (str == "") str = "Error: Node is unavailable";
+        send_message(parent_socket, str);
+    }
+}
+
 void exec(istringstream& command_stream, zmq::socket_t& parent_socket, zmq::socket_t& left_socket, 
             zmq::socket_t& right_socket, int& left_pid, int& right_pid, int& id, string& request_string) {
     string count_nums, nums;
@@ -84,16 +98,17 @@ void exec(istringstream& command_stream, zmq::socket_t& parent_socket, zmq::sock
     }
 }
 
-void real_exec(zmq::socket_t& parent_socket, zmq::socket_t& socket,  int& id, int& pid, string& request_string) {
+
+void real_ping(zmq::socket_t& parent_socket, zmq::socket_t& socket,  int& id, int& pid, string& request_string) {
     if (pid == 0) {
         string receive_message = "Error:" + to_string(id);
         receive_message += ": Not found";
         send_message(parent_socket, receive_message);
-    } 
+    }
     else {
         send_message(socket, request_string);
         string str = receive_message(socket);
-        if (str == "") str = "Error: Node is unavailable";
+        if (str == "") str = "0";
         send_message(parent_socket, str);
     }
 }
@@ -114,19 +129,6 @@ void ping(istringstream& command_stream, zmq::socket_t& parent_socket, zmq::sock
     }
 }
 
-void real_ping(zmq::socket_t& parent_socket, zmq::socket_t& socket,  int& id, int& pid, string& request_string) {
-    if (pid == 0) {
-        string receive_message = "Error:" + to_string(id);
-        receive_message += ": Not found";
-        send_message(parent_socket, receive_message);
-    }
-    else {
-        send_message(socket, request_string);
-        string str = receive_message(socket);
-        if (str == "") str = "0";
-        send_message(parent_socket, str);
-    }
-}
 
 void real_kill(zmq::socket_t& parent_socket, zmq::socket_t& socket, int& delete_id, int& id, int& pid, string& request_string) {
     if (id == 0) {
