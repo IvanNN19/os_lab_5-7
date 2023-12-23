@@ -24,20 +24,20 @@ void Tree::delete_node(Node* node) {
     delete node;
 }
 
-// std::vector<int> Tree::get_nodes() {
-//     std::vector<int> result;
-//     get_nodes(root, result);
-//     return result;
-// }
+std::vector<int> Tree::get_nodes() {
+    std::vector<int> result;
+    get_nodes(root, result);
+    return result;
+}
 
-// void Tree::get_nodes(Node* node, std::vector<int>& v) {
-//     if (node == NULL) {
-// 		return;
-// 	}
-//     get_nodes(node->left, v);
-//     v.push_back(node->id);
-//     get_nodes(node->right, v);
-// }
+void Tree::get_nodes(Node* node, std::vector<int>& v) {
+    if (node == NULL) {
+		return;
+	}
+    get_nodes(node->left, v);
+    v.push_back(node->id);
+    get_nodes(node->right, v);
+}
 
 Node* Tree::push(Node* root, int val) {
     if (root == NULL) {

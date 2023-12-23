@@ -14,7 +14,7 @@ const int TIMER = 500;
 const int DEFAULT_PORT  = 5050; //?
 int n = 2;
 
-bool send_message(zmq::socket_t &socket, const string &message_string) {
+bool message_send(zmq::socket_t &socket, const string &message_string) {
     zmq::message_t message(message_string.size());
     memcpy(message.data(), message_string.c_str(), message_string.size());
     return socket.send(message); 
@@ -86,7 +86,6 @@ int main() {
             }
             node_id = stoi(str);
             if (child_pid == 0) {
-                //зачем это всё??
                 main_socket.bind(get_port_name(DEFAULT_PORT + node_id));
                 main_socket.setsockopt(ZMQ_RCVTIMEO, n * TIMER); //используется для установки параметра сокета ZeroMQ. В данном случае, это устанавливает таймаут приема (receive timeout) для сокета
 		        main_socket.setsockopt(ZMQ_SNDTIMEO, n * TIMER); // это опция сокета, которая устанавливает таймаут отправки (send timeout). Это означает максимальное время ожидания при отправке сообщения сокетом.
@@ -103,14 +102,14 @@ int main() {
                     child_id = node_id;
                     main_socket.setsockopt(ZMQ_RCVTIMEO, n * TIMER);
 		            main_socket.setsockopt(ZMQ_SNDTIMEO, n * TIMER);
-                    send_message(main_socket, "pid");
+                    message_send(main_socket, "pid");
                     result = receive_message(main_socket);
                 }
             } else {
 		        main_socket.setsockopt(ZMQ_RCVTIMEO, n * TIMER);
 		        main_socket.setsockopt(ZMQ_SNDTIMEO, n * TIMER);
                 string msg_s = "create " + to_string(node_id);
-                send_message(main_socket, msg_s);
+                message_send(main_socket, msg_s);
                 result = receive_message(main_socket);
             }
             if (result.substr(0, 2) == "Ok") {
@@ -140,7 +139,7 @@ int main() {
                 continue;
             }
             string message_string = "kill " + to_string(node_id);
-            send_message(main_socket, message_string);
+            message_send(main_socket, message_string);
             string recieved_message;
 	        recieved_message = receive_message(main_socket);
             if (recieved_message.substr(0, min<int>(recieved_message.size(), 2)) == "Ok") {
@@ -166,7 +165,7 @@ int main() {
             }
             id = stoi(id_str);
             string message_string = "exec " + to_string(id) + " " + count_num + " " + rez;
-            send_message(main_socket, message_string);
+            message_send(main_socket, message_string);
             string recieved_message = receive_message(main_socket);
             cout << recieved_message << "\n";
         }
@@ -176,7 +175,7 @@ int main() {
             for(int i = 0; i < nodes.size(); i++){
                 int id = nodes[i];
                 string message_string = "ping " + to_string(id);
-                send_message(main_socket, message_string);
+                message_send(main_socket, message_string);
                 if(stoi(receive_message(main_socket)) != 0){
                     rez_str += receive_message(main_socket) + ";"; 
                 }
